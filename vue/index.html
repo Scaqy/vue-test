@@ -3,22 +3,142 @@
 	<head>
 		<meta charset="utf-8" />
 		<title></title>
-		<!-- <script src="https://unpkg.com/vue@next"></script> -->
-		<script src="js/v3.2.8/vue.global.prod.js" type="text/javascript" charset="utf-8"></script>
+		<!-- <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script> -->
+		<script src="js/v2.6.10/vue.js"></script>
 	</head>
 	<body>
-		<div id="app">
-			{{ counter }}
+		<div style="padding: 0.25rem;padding-top: 0rem;" id="app">
+			<ul style="list-style: none;" v-for="(msg,name) in messages">
+				<li>{{name}}:{{msg}}</li>
+			</ul>
+			<p>{{ reverseMessage }}</p>
+			<p v-bind:hidden="bol">你看不见我！！！</p>
+			<p>{{ counter }}</p>
+			<button style="width: 1.25rem;height: 1.25rem;" v-on:click="counter = add"></button>
+			<span v-html="rawthml"></span>
+			<span>{{rawthml}}</span>
 		</div>
+		<div id="app2">
+			<p v-if="seen">现在你看到我啦！</p>
+			<button type="button" v-on:click="seen = seen?false:true"></button>
+			<span>{{ fullName }}</span>
+			<button type="button" v-on:click="change()"></button>
+		</div>
+	<!-- 	<div id="app2">{{ fullName }}
+		<button type="button" v-on:click="fullName"></button>
+		</div> -->
+		<div id="app3">
+			<p>'问一个问题'</p>
+			<input type="text" v-model="quesion" />
+			<p>{{ answer }}</p>
+			<button-counter></button-counter>
+			<my-compnent></my-compnent>
+			<template v-if="ok"><p>can you see me?</p></template>
+		</div>
+		
+		<!-- <div id="components-demo">
+		  <button-counter></button-counter>
+		</div> -->
+		
 		<script>
-			const App = {
-				data() {
-					return {
-						counter: 0
+			var app = new Vue({
+				el: '#app',
+				data: {
+					bol: true,
+					messages: {
+						message: 'Hello Vue!',
+						message2: 'Hello World!',
+						message3: 'Hello Tree!'
+					},
+					msg2: {
+						msg: '1111',
+						msg2: '2222',
+						msg3: '3333',
+						msg4: '4444'
+					},
+					counter: 0,
+					rawthml: '<span style="color:red">this is red html</span>'
+				},
+				computed: {
+					reverseMessage: function() {
+						return this.messages.message.split('').reverse().join('')
+					},
+					add: function() {
+						return this.counter + 1
+					},
+				}
+			});
+			
+			var app2 = new Vue({
+				el: '#app2',
+				data: {
+					seen: true,
+					firstName: 'Foo',
+					lastName: 'Bar'
+				},
+				methods:{
+					change: function(){
+						this.fullName = "[,]"
+					}
+				},
+				computed: {
+				  fullName: {
+						// getter
+						get: function () {
+							console.log("执行了getter方法！")
+						  return this.firstName + ' ' + this.lastName
+						},
+				    // setter
+				    set: function (newValue) {
+				      var names = newValue.split(',')
+				      this.firstName = names[0]
+				      this.lastName = names[1]
+							console.log("执行了setter方法！")
+				    }	
+				  }
+				}
+			});
+			
+			var app3 = new Vue({
+				el: '#app3',
+				data: {
+					quesion: '',
+					answer: '我可以回答你任何问题',
+					ok: true
+				},
+				watch: {
+					quesion: function(newquesion,oldquesion){
+						this.answer = '等等我就回答你'
+						this.getanswer()
+					}
+				},
+				created:function(){
+					 this.debouncedGetAnswer = _.debounce(this.getAnswer, 500)
+				},
+				methods:{
+					getanswer: function(){
+						if(this.quesion.indexOf('?')===-1){
+							this.answer = '你说的是啥'
+							return
+						}
+						this.answer = 'thinking.....'
 					}
 				}
-			};
-			Vue.createApp(App).mount('#app');
+			});
+			Vue.component('button-counter', {
+			  data: function () {
+			    return {
+			      count: 0
+			    }
+			  },
+			  template: '<button v-on:click="count++">You clicked me {{ count }} times.</button>'
+			})
+			Vue.component('my-compnent',{
+				template: '<p style="color: red;">Hi,this is a compnent!</p>'
+			})
+			new Vue({el: '#app3'})
+			// new Vue({ el: '#components-demo' })
+			
 		</script>
 	</body>
 </html>
